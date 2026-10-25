@@ -9,12 +9,12 @@ A modular framework that generates physically motivated, controlled variations o
 ```
 project_root/
 ├── configs/default.yaml         # All parameters, thresholds, and variation levels
-├── data/                        # Local input, evaluation, and generated image data (not tracked)
+├── data/                        # Input images, evaluation subset, and generated variations
 │   ├── input/                   # Reference face images (place your images here)
 │   ├── output/                  # Generated images, grids, metadata.csv
 │   └── eval/raw/                # FairFace evaluation subset — 147 images + labels.csv
-├── examples/                    # Generated example grids (not tracked)
-├── models/                      # Downloaded model weights (gitignored; auto-downloaded by code)
+├── examples/                    # Generated example grids
+├── models/                      # MediaPipe selfie segmenter model weights
 │   └── selfie_multiclass_256x256.tflite  # MediaPipe multiclass selfie segmenter
 │                                # Downloaded automatically from:
 │                                # https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite
@@ -32,7 +32,7 @@ project_root/
 └── tests/                       # pytest test suite
 ```
 
-Image and evaluation data are intentionally excluded from this public repository. Add your own face images under `data/input/`; evaluation images and generated example grids are not included.
+This repository includes the current input image, evaluation data, generated variations, example grids, and model weights. Review the image dataset's license and usage terms before redistributing or reusing those assets. Add additional face images under `data/input/`.
 
 ---
 

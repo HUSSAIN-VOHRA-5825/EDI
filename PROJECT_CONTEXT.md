@@ -14,11 +14,11 @@ Medical AI systems must be robust to imaging conditions: lighting, blur, noise, 
 ## Folder Layout
 ```
 configs/default.yaml        # All parameters, thresholds, variation levels
-data/input/                 # Reference face images
-data/output/                # Generated images + metadata.csv  [gitignored]
-data/eval/raw/              # FairFace 147-image evaluation subset  [gitignored]
+data/input/                 # Reference face images (committed)
+data/output/                # Generated images + metadata.csv (committed)
+data/eval/                  # FairFace evaluation subset (committed)
 examples/                   # One grid PNG per variation + metadata.csv (committed)
-models/                     # Downloaded .tflite weight (auto-fetched by mesh.py) [gitignored]
+models/                     # .tflite weight (committed; auto-fetched if missing)
 src/core/                   # Base class, registry, config loader, pipeline runner
 src/face/mesh.py            # Landmark detection, skin mask, edit mask
 src/metrics/                # identity, ssim, lpips, detail_retention, ita, delta_e, preservation

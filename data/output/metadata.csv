@@ -1,0 +1,76 @@
+original filename,variation,severity,output path,identity similarity,SSIM (full),SSIM (face region),LPIPS (face region),face_clipped_fraction,detail_retention,delta_e_face,ita_before,ita_after,passed,notes
+person_1.jpg,blur_gaussian,1,data/output/blur_gaussian/level_1/person_1.png,0.997,0.9965,0.9976,0.0006,0.0,0.793,0.3752,38.48,38.12,True,OK
+person_1.jpg,blur_gaussian,2,data/output/blur_gaussian/level_2/person_1.png,0.9929,0.9475,0.9363,0.0303,0.0,0.1252,1.2639,38.48,38.12,True,OK
+person_1.jpg,blur_gaussian,3,data/output/blur_gaussian/level_3/person_1.png,0.9728,0.9077,0.8956,0.0627,0.0,0.0348,1.6128,38.48,38.01,False,Failed thresholds: detail_retention
+person_1.jpg,blur_gaussian,4,data/output/blur_gaussian/level_4/person_1.png,0.9387,0.8789,0.8678,0.0758,0.0,0.018,1.8959,38.48,37.72,False,Failed thresholds: detail_retention
+person_1.jpg,blur_gaussian,5,data/output/blur_gaussian/level_5/person_1.png,0.8925,0.8535,0.8393,0.0795,0.0,0.0123,2.2664,38.48,37.3,False,Failed thresholds: detail_retention
+person_1.jpg,blur_motion,1,data/output/blur_motion/level_1/person_1.png,0.9914,0.9336,0.9213,0.0331,0.0,0.132,1.3997,38.48,38.1,True,OK
+person_1.jpg,blur_motion,2,data/output/blur_motion/level_2/person_1.png,0.9386,0.904,0.8958,0.0562,0.0,0.0776,1.6435,38.48,38.09,True,OK
+person_1.jpg,blur_motion,3,data/output/blur_motion/level_3/person_1.png,0.8597,0.8702,0.8551,0.0586,0.0,0.0513,2.1237,38.48,37.43,False,Failed thresholds: detail_retention
+person_1.jpg,blur_motion,4,data/output/blur_motion/level_4/person_1.png,0.6842,0.8412,0.827,0.0664,0.0,0.0328,2.5503,38.48,36.85,False,Failed thresholds: detail_retention
+person_1.jpg,blur_motion,5,data/output/blur_motion/level_5/person_1.png,0.4505,0.8187,0.7648,0.0762,0.0,0.0342,3.6278,38.48,35.7,False,"Failed thresholds: identity, detail_retention"
+person_1.jpg,blur_defocus,1,data/output/blur_defocus/level_1/person_1.png,0.9934,0.9736,0.9656,0.0101,0.0,0.3303,0.968,38.48,38.15,True,OK
+person_1.jpg,blur_defocus,2,data/output/blur_defocus/level_2/person_1.png,0.9965,0.9247,0.9091,0.0383,0.0,0.0971,1.4699,38.48,38.09,True,OK
+person_1.jpg,blur_defocus,3,data/output/blur_defocus/level_3/person_1.png,0.9688,0.8932,0.8818,0.0672,0.0,0.0338,1.7132,38.48,37.97,False,Failed thresholds: detail_retention
+person_1.jpg,blur_defocus,4,data/output/blur_defocus/level_4/person_1.png,0.9143,0.8652,0.8545,0.0754,0.0,0.0183,1.9942,38.48,37.72,False,Failed thresholds: detail_retention
+person_1.jpg,blur_defocus,5,data/output/blur_defocus/level_5/person_1.png,0.8225,0.8393,0.8239,0.08,0.0,0.0128,2.3866,38.48,37.18,False,Failed thresholds: detail_retention
+person_1.jpg,noise_gaussian,1,data/output/noise_gaussian/level_1/person_1.png,0.9827,0.9085,0.9442,0.0013,0.0001,1.2529,2.7095,38.48,38.13,True,OK
+person_1.jpg,noise_gaussian,2,data/output/noise_gaussian/level_2/person_1.png,0.9956,0.7268,0.8124,0.0108,0.0001,2.0,5.3684,38.48,38.23,True,OK
+person_1.jpg,noise_gaussian,3,data/output/noise_gaussian/level_3/person_1.png,0.9683,0.5131,0.6257,0.0446,0.0012,2.0,8.8256,38.48,37.85,False,"Failed thresholds: ssim_face, ssim_full"
+person_1.jpg,noise_gaussian,4,data/output/noise_gaussian/level_4/person_1.png,0.9522,0.321,0.4184,0.1243,0.0091,2.0,13.8579,38.48,37.86,False,"Failed thresholds: ssim_face, ssim_full, lpips_face"
+person_1.jpg,noise_gaussian,5,data/output/noise_gaussian/level_5/person_1.png,0.9176,0.1972,0.2575,0.2345,0.0373,2.0,20.6797,38.48,36.61,False,"Failed thresholds: ssim_face, ssim_full, lpips_face"
+person_1.jpg,noise_sensor,1,data/output/noise_sensor/level_1/person_1.png,0.9954,0.937,0.982,0.0005,0.0004,1.078,1.5761,38.48,38.25,True,OK
+person_1.jpg,noise_sensor,2,data/output/noise_sensor/level_2/person_1.png,0.9931,0.8415,0.9502,0.0013,0.0006,1.2426,2.6013,38.48,38.26,True,OK
+person_1.jpg,noise_sensor,3,data/output/noise_sensor/level_3/person_1.png,0.99,0.6554,0.8648,0.0069,0.0026,1.6848,4.4964,38.48,38.32,True,OK
+person_1.jpg,noise_sensor,4,data/output/noise_sensor/level_4/person_1.png,0.9667,0.4486,0.7138,0.0254,0.0123,2.0,7.5716,38.48,38.42,False,"Failed thresholds: ssim_face, ssim_full"
+person_1.jpg,noise_sensor,5,data/output/noise_sensor/level_5/person_1.png,0.9559,0.2618,0.4908,0.1104,0.037,2.0,12.6478,38.48,38.15,False,"Failed thresholds: ssim_face, ssim_full, lpips_face"
+person_1.jpg,jpeg_quality,1,data/output/jpeg_quality/level_1/person_1.png,0.9964,0.927,0.9024,0.0068,0.0006,0.5229,2.1033,38.48,38.6,True,OK
+person_1.jpg,jpeg_quality,2,data/output/jpeg_quality/level_2/person_1.png,0.9846,0.9103,0.8827,0.0152,0.0006,0.4452,2.4387,38.48,38.59,True,OK
+person_1.jpg,jpeg_quality,3,data/output/jpeg_quality/level_3/person_1.png,0.9861,0.89,0.859,0.0265,0.0004,0.4275,2.9556,38.48,38.55,True,OK
+person_1.jpg,jpeg_quality,4,data/output/jpeg_quality/level_4/person_1.png,0.9576,0.8598,0.8136,0.0312,0.0009,0.5628,4.2331,38.48,37.9,True,OK
+person_1.jpg,jpeg_quality,5,data/output/jpeg_quality/level_5/person_1.png,0.8546,0.7948,0.7025,0.0787,0.0003,1.1755,7.2559,38.48,42.14,False,Failed thresholds: ssim_face
+person_1.jpg,jpeg_lowres,1,data/output/jpeg_lowres/level_1/person_1.png,0.9848,0.9206,0.9014,0.0304,0.0,0.1434,1.975,38.48,38.46,True,OK
+person_1.jpg,jpeg_lowres,2,data/output/jpeg_lowres/level_2/person_1.png,0.9856,0.8929,0.8696,0.0517,0.0,0.097,2.5409,38.48,38.79,True,OK
+person_1.jpg,jpeg_lowres,3,data/output/jpeg_lowres/level_3/person_1.png,0.9761,0.87,0.8489,0.0695,0.0,0.0624,3.0658,38.48,38.29,False,Failed thresholds: detail_retention
+person_1.jpg,jpeg_lowres,4,data/output/jpeg_lowres/level_4/person_1.png,0.9004,0.8444,0.8218,0.0751,0.0,0.0469,3.7895,38.48,38.11,False,Failed thresholds: detail_retention
+person_1.jpg,jpeg_lowres,5,data/output/jpeg_lowres/level_5/person_1.png,0.8267,0.8203,0.7956,0.0827,0.0,0.0442,4.495,38.48,38.78,False,"Failed thresholds: lpips_face, detail_retention"
+person_1.jpg,light_lowlight,1,data/output/light_lowlight/level_1/person_1.png,0.9799,0.9846,0.9858,0.0045,0.0001,0.7913,7.7725,38.48,24.55,True,OK
+person_1.jpg,light_lowlight,2,data/output/light_lowlight/level_2/person_1.png,0.9766,0.9403,0.9437,0.0146,0.0001,0.6143,15.1547,38.48,3.61,True,OK
+person_1.jpg,light_lowlight,3,data/output/light_lowlight/level_3/person_1.png,0.9738,0.8559,0.8633,0.032,0.0001,0.4507,23.0344,38.48,-24.89,True,OK
+person_1.jpg,light_lowlight,4,data/output/light_lowlight/level_4/person_1.png,0.9617,0.7333,0.7473,0.0534,0.0001,0.3211,30.8294,38.48,-48.6,False,Failed thresholds: ssim_face
+person_1.jpg,light_lowlight,5,data/output/light_lowlight/level_5/person_1.png,0.947,0.5709,0.5936,0.0886,0.0003,0.209,39.0172,38.48,-64.7,False,"Failed thresholds: ssim_face, lpips_face"
+person_1.jpg,light_overexposed,1,data/output/light_overexposed/level_1/person_1.png,0.9847,0.9747,0.9768,0.0148,0.0001,0.9947,9.8266,38.48,51.19,True,OK
+person_1.jpg,light_overexposed,2,data/output/light_overexposed/level_2/person_1.png,0.9828,0.9467,0.9501,0.0322,0.0001,0.965,14.6306,38.48,56.17,True,OK
+person_1.jpg,light_overexposed,3,data/output/light_overexposed/level_3/person_1.png,0.9762,0.9034,0.9064,0.06,0.0001,0.9142,20.2754,38.48,61.84,True,OK
+person_1.jpg,light_overexposed,4,data/output/light_overexposed/level_4/person_1.png,0.9545,0.848,0.8462,0.095,0.0001,0.8482,26.1165,38.48,68.01,False,Failed thresholds: lpips_face
+person_1.jpg,light_overexposed,5,data/output/light_overexposed/level_5/person_1.png,0.9242,0.7763,0.7607,0.1374,0.0001,0.7701,32.2672,38.48,75.37,False,Failed thresholds: lpips_face
+person_1.jpg,light_directional,1,data/output/light_directional/level_1/person_1.png,0.9929,0.9961,0.9981,0.0004,0.0001,0.9408,2.5716,38.48,34.51,True,OK
+person_1.jpg,light_directional,2,data/output/light_directional/level_2/person_1.png,0.9943,0.9903,0.9911,0.0034,0.0001,0.832,6.1441,38.48,28.11,True,OK
+person_1.jpg,light_directional,3,data/output/light_directional/level_3/person_1.png,0.9876,0.9771,0.9788,0.0066,0.0001,0.7536,9.2198,38.48,21.9,True,OK
+person_1.jpg,light_directional,4,data/output/light_directional/level_4/person_1.png,0.9758,0.9551,0.9766,0.0057,0.0001,0.7573,9.2307,38.48,21.13,True,OK
+person_1.jpg,light_directional,5,data/output/light_directional/level_5/person_1.png,0.9825,0.9082,0.9523,0.0108,0.0001,0.6752,12.6656,38.48,13.82,True,OK
+person_1.jpg,light_colortemp,1,data/output/light_colortemp/level_1/person_1.png,0.9952,0.9989,0.9988,0.0029,0.0001,1.0006,4.2708,38.48,35.11,True,OK
+person_1.jpg,light_colortemp,2,data/output/light_colortemp/level_2/person_1.png,0.9762,0.9966,0.9967,0.0193,0.0001,1.0032,8.4565,38.48,45.72,True,OK
+person_1.jpg,light_colortemp,3,data/output/light_colortemp/level_3/person_1.png,0.9844,0.9914,0.9909,0.0179,0.0001,0.9688,13.2775,38.48,29.41,True,OK
+person_1.jpg,light_colortemp,4,data/output/light_colortemp/level_4/person_1.png,0.9791,0.9824,0.9764,0.029,0.0001,0.8941,18.5009,38.48,26.34,True,OK
+person_1.jpg,light_colortemp,5,data/output/light_colortemp/level_5/person_1.png,0.9767,0.9643,0.9469,0.045,0.0001,0.7995,25.0436,38.48,23.33,True,OK
+person_1.jpg,skin_lighter,1,data/output/skin_lighter/level_1/person_1.png,0.977,0.9988,0.993,0.0008,0.0,1.0099,2.8979,38.48,43.41,True,OK
+person_1.jpg,skin_lighter,2,data/output/skin_lighter/level_2/person_1.png,0.9369,0.9956,0.9749,0.0031,0.0032,1.0382,5.7826,38.48,47.69,True,OK
+person_1.jpg,skin_lighter,3,data/output/skin_lighter/level_3/person_1.png,0.8709,0.9911,0.9491,0.0071,0.0379,1.0188,8.6329,38.48,51.49,True,OK
+person_1.jpg,skin_lighter,4,data/output/skin_lighter/level_4/person_1.png,0.7593,0.9834,0.901,0.0164,0.1831,0.9643,12.4473,38.48,55.76,False,Failed thresholds: clipped_fraction
+person_1.jpg,skin_lighter,5,data/output/skin_lighter/level_5/person_1.png,0.5902,0.9752,0.8503,0.0315,0.3293,0.9114,16.3331,38.48,59.53,False,"Failed thresholds: identity, clipped_fraction"
+person_1.jpg,skin_darker,1,data/output/skin_darker/level_1/person_1.png,0.8632,0.9981,0.9892,0.0012,0.0006,0.9742,3.4079,38.48,31.99,True,OK
+person_1.jpg,skin_darker,2,data/output/skin_darker/level_2/person_1.png,0.7805,0.9928,0.9589,0.0043,0.0008,0.9626,6.7219,38.48,24.47,True,OK
+person_1.jpg,skin_darker,3,data/output/skin_darker/level_3/person_1.png,0.6954,0.9846,0.9127,0.009,0.0016,0.9294,10.0636,38.48,15.89,True,OK
+person_1.jpg,skin_darker,4,data/output/skin_darker/level_4/person_1.png,0.6426,0.9743,0.8568,0.015,0.003,0.9019,13.3943,38.48,7.01,True,OK
+person_1.jpg,skin_darker,5,data/output/skin_darker/level_5/person_1.png,0.5821,0.9629,0.7949,0.0229,0.0056,0.8782,16.7374,38.48,-1.78,False,Failed thresholds: identity
+person_1.jpg,skin_warm,1,data/output/skin_warm/level_1/person_1.png,0.9887,0.9998,0.9991,0.0007,0.0003,1.003,2.1706,38.48,35.99,True,OK
+person_1.jpg,skin_warm,2,data/output/skin_warm/level_2/person_1.png,0.989,0.9995,0.997,0.0022,0.0006,1.0131,3.895,38.48,33.77,True,OK
+person_1.jpg,skin_warm,3,data/output/skin_warm/level_3/person_1.png,0.9893,0.9988,0.9935,0.005,0.0006,1.017,5.9908,38.48,31.77,True,OK
+person_1.jpg,skin_warm,4,data/output/skin_warm/level_4/person_1.png,0.9854,0.9973,0.9856,0.01,0.0008,1.0123,8.7552,38.48,29.19,True,OK
+person_1.jpg,skin_warm,5,data/output/skin_warm/level_5/person_1.png,0.9599,0.9952,0.9744,0.0167,0.0015,1.0212,11.7801,38.48,26.83,True,OK
+person_1.jpg,skin_cool,1,data/output/skin_cool/level_1/person_1.png,0.9977,0.9999,0.9994,0.0005,0.0,0.9983,1.6428,38.48,40.76,True,OK
+person_1.jpg,skin_cool,2,data/output/skin_cool/level_2/person_1.png,0.9968,0.9997,0.9985,0.0015,0.0,1.0003,2.8804,38.48,42.65,True,OK
+person_1.jpg,skin_cool,3,data/output/skin_cool/level_3/person_1.png,0.9956,0.9995,0.9971,0.0035,0.0,0.9944,4.3788,38.48,45.37,True,OK
+person_1.jpg,skin_cool,4,data/output/skin_cool/level_4/person_1.png,0.9852,0.9991,0.995,0.0064,0.0,0.9975,5.8771,38.48,48.16,True,OK
+person_1.jpg,skin_cool,5,data/output/skin_cool/level_5/person_1.png,0.9907,0.9985,0.9916,0.0109,0.0,1.0066,7.7153,38.48,52.03,True,OK

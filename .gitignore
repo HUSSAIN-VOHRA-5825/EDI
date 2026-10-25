@@ -1,13 +1,6 @@
-# Local input, evaluation, and generated image data
-data/
-# Generated example grids
-examples/
 # Generated evaluation reports
 results/
 !results/robustness_summary.md
-
-# Downloaded model weights — re-downloaded automatically by mesh.py if missing
-models/
 
 # Python bytecode
 __pycache__/
