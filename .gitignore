@@ -1,0 +1,22 @@
+# Local input, evaluation, and generated image data
+data/
+# Generated example grids
+examples/
+# Generated evaluation reports
+results/
+!results/robustness_summary.md
+
+# Downloaded model weights — re-downloaded automatically by mesh.py if missing
+models/
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Test cache
+.pytest_cache/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db

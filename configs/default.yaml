@@ -1,0 +1,207 @@
+# Default Configuration for Controlled Face Image Variation Tool
+# Reproducibility seed for all stochastic operations
+seed: 42
+
+# Paths configuration
+paths:
+  input_dir: "data/input"
+  output_dir: "data/output"
+  metadata_file: "data/output/metadata.csv"
+
+# Preprocessing parameters
+preprocessing:
+  target_size: 512         # Resize so the longer side is 512px while maintaining aspect ratio
+  interpolation: "lanczos" # High quality resampling for down/up-scaling
+
+# Available severity levels (integer scale 1 to 5)
+severity_levels: [1, 2, 3, 4, 5]
+
+# Clinical and Identity Preservation Thresholds (Calibrated empirically across 11 variations at levels 1-5)
+preservation_thresholds:
+  identity_similarity_min: 0.60  # Allows natural feature drift under mild camera motion/defocus while strictly preserving person recognition.
+  ssim_face_min: 0.75            # Preserves facial skin structural fidelity, rejecting severe motion streaks and raw sensor noise (fails blur_motion & noise_sensor L5).
+  ssim_full_min: 0.55            # Enforces overall composition and lighting integrity across the full frame (fails heavy CMOS read/shot noise at noise_sensor L5).
+  lpips_face_max: 0.08           # Constrains deep perceptual degradation on facial features, catching severe flash burnout and wash-out (fails light_overexposed L5).
+  min_detail_retention: 0.075    # Drives blur and downsampling decisions by preserving fine pore/lesion texture (fails blur_motion & jpeg_lowres L5).
+
+# Variation parameter configurations (all parameters relative to width or physics-motivated)
+variations:
+  # --- Blur variations ---
+  blur_gaussian:
+    description: "Gaussian blur with sigma proportional to image width"
+    levels:
+      1: { sigma_fraction: 0.001 }
+      2: { sigma_fraction: 0.002 }
+      3: { sigma_fraction: 0.0035 }
+      4: { sigma_fraction: 0.0055 }
+      5: { sigma_fraction: 0.008 }
+
+  blur_motion:
+    description: "Camera shake motion blur with 4x-supersampled anti-aliased line kernel and random orientation"
+    # Length as fraction of image width — resolution-invariant.
+    # Retuned (2026-10): previously 0.01-0.11 was too destructive at L4/L5.
+    levels:
+      1: { length_fraction: 0.008 }
+      2: { length_fraction: 0.016 }
+      3: { length_fraction: 0.028 }
+      4: { length_fraction: 0.042 }
+      5: { length_fraction: 0.060 }
+
+  blur_defocus:
+    description: "Defocus/aperture blur with circular disk kernel (bokeh) proportional to image width"
+    levels:
+      1: { radius_fraction: 0.002 }
+      2: { radius_fraction: 0.004 }
+      3: { radius_fraction: 0.007 }
+      4: { radius_fraction: 0.011 }
+      5: { radius_fraction: 0.016 }
+
+  # --- Noise variations ---
+  noise_gaussian:
+    description: "Additive zero-mean Gaussian electronic/transmission noise"
+    levels:
+      1: { sigma: 3.0 }
+      2: { sigma: 6.0 }
+      3: { sigma: 10.0 }
+      4: { sigma: 16.0 }
+      5: { sigma: 24.0 }
+
+  noise_sensor:
+    description: "Realistic CMOS camera sensor noise (Poisson shot noise + Gaussian read noise in linear space)"
+    levels:
+      1: { photon_scale: 8000.0, read_noise_std: 0.003 }
+      2: { photon_scale: 3000.0, read_noise_std: 0.006 }
+      3: { photon_scale: 1200.0, read_noise_std: 0.012 }
+      4: { photon_scale: 500.0, read_noise_std: 0.022 }
+      5: { photon_scale: 200.0, read_noise_std: 0.040 }
+
+  # --- JPEG compression variations ---
+  jpeg_quality:
+    description: "Lossy DCT-based JPEG compression quantization degradation"
+    levels:
+      1: { quality: 70 }
+      2: { quality: 50 }
+      3: { quality: 30 }
+      4: { quality: 15 }
+      5: { quality: 6 }
+
+  jpeg_lowres:
+    description: "Low-quality upload simulation (downscale + JPEG quantization + bilinear upscale)"
+    levels:
+      1: { scale_factor: 0.80, quality: 85 }
+      2: { scale_factor: 0.60, quality: 70 }
+      3: { scale_factor: 0.45, quality: 55 }
+      4: { scale_factor: 0.33, quality: 40 }
+      5: { scale_factor: 0.25, quality: 30 }
+
+  # --- Lighting variations ---
+  light_lowlight:
+    description: "Simulates dark/dim ambient lighting (sensor underexposure) in linear sRGB space"
+    # gain < 1 darkens; applied in linear light, re-gamma-corrected after.
+    levels:
+      1: { gain: 0.75 }
+      2: { gain: 0.55 }
+      3: { gain: 0.38 }
+      4: { gain: 0.25 }
+      5: { gain: 0.15 }
+
+  light_overexposed:
+    description: "Simulates over-exposed / flash-blowout; tanh shoulder prevents hard clipping"
+    # gain > 1 brightens; tanh shoulder keeps smooth roll-off instead of hard saturation.
+    levels:
+      1: { gain: 1.35 }
+      2: { gain: 1.80 }
+      3: { gain: 2.40 }
+      4: { gain: 3.20 }
+      5: { gain: 4.50 }
+
+  light_directional:
+    description: "One-sided directional shadow gradient across the face (clinical ring-light off-axis)"
+    # shadow_strength: fraction of max darkening in the shadow half (0 = no effect, 1 = pitch black).
+    # Direction is randomised per image; gradient is a smoothstep, not a hard edge.
+    levels:
+      1: { shadow_strength: 0.20 }
+      2: { shadow_strength: 0.35 }
+      3: { shadow_strength: 0.50 }
+      4: { shadow_strength: 0.65 }
+      5: { shadow_strength: 0.80 }
+
+  light_colortemp:
+    description: "Colour temperature shift (warm/cool white-balance error) in linear sRGB space"
+    # shift > 0 = warmer (orange tint, low kelvin), shift < 0 = cooler (blue tint).
+    # Per-run direction is chosen randomly; magnitude is fixed by severity.
+    levels:
+      1: { shift: 0.08 }
+      2: { shift: 0.16 }
+      3: { shift: 0.25 }
+      4: { shift: 0.35 }
+      5: { shift: 0.48 }
+
+  # --- Skin tone variations ---
+  # forehead_ycrcb_dist_threshold: pixels inside the extended forehead polygon whose
+  # Euclidean distance in Cr-Cb space from the median cheek/nose colour is within this
+  # threshold are considered skin. 22 works for most Fitzpatrick types; lower = stricter.
+  forehead_ycrcb_dist_threshold: 22
+
+  skin_lighter:
+    description: "Lightens skin tone additively in CIELAB with chroma compensation"
+    chroma_k: 0.3
+    gate_metrics: ["identity", "detail_retention", "clipped_fraction"]
+    levels:
+      1: { dL: 3.0 }
+      2: { dL: 6.0 }
+      3: { dL: 9.0 }
+      4: { dL: 13.0 }
+      5: { dL: 17.0 }
+
+  skin_darker:
+    description: "Darkens skin tone additively in CIELAB with chroma compensation"
+    chroma_k: 0.3
+    gate_metrics: ["identity", "detail_retention", "clipped_fraction"]
+    levels:
+      1: { dL: -3.5 }
+      2: { dL: -7.0 }
+      3: { dL: -10.5 }
+      4: { dL: -14.0 }
+      5: { dL: -17.5 }
+
+  skin_warm:
+    description: "Shifts skin tone toward warmer (golden/erythema) spectrum in CIELAB"
+    gate_metrics: ["identity", "detail_retention", "clipped_fraction"]
+    levels:
+      1: { db: 2.0, da: 0.5 }
+      2: { db: 4.0, da: 1.0 }
+      3: { db: 6.0, da: 1.5 }
+      4: { db: 9.0, da: 2.0 }
+      5: { db: 12.0, da: 3.0 }
+
+  skin_cool:
+    description: "Shifts skin tone toward cooler (cyan/blue undertone) spectrum in CIELAB"
+    # db* drives cyan/teal shift; da* is a very mild green pull to counteract purple cast.
+    # Previously larger values caused a purple hue resembling cyanosis — tuned down.
+    gate_metrics: ["identity", "detail_retention", "clipped_fraction"]
+    levels:
+      1: { db: -1.5, da: -0.3 }
+      2: { db: -3.0, da: -0.6 }
+      3: { db: -4.5, da: -1.0 }
+      4: { db: -6.0, da: -1.4 }
+      5: { db: -8.0, da: -1.8 }
+
+  # --- Test dummy variations (retained for pipeline self-testing) ---
+  identity_test:
+    description: "Returns the original image unchanged at all levels (test-only verification)"
+    levels:
+      1: {}
+      2: {}
+      3: {}
+      4: {}
+      5: {}
+
+  brightness_test:
+    description: "Simple test variation scaling image brightness by severity (test-only verification)"
+    levels:
+      1: { factor: 1.1 }
+      2: { factor: 1.25 }
+      3: { factor: 1.45 }
+      4: { factor: 1.7 }
+      5: { factor: 2.0 }

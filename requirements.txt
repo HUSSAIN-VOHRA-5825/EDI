@@ -1,0 +1,19 @@
+# Core Scientific & Imaging
+numpy>=1.24.0
+scipy>=1.10.0
+scikit-image>=0.20.0
+opencv-python>=4.8.0
+pillow>=9.5.0
+matplotlib>=3.7.0
+pandas>=2.0.0
+pyyaml>=6.0.0
+
+# Deep Learning & Vision
+torch>=2.0.0
+torchvision>=0.15.0
+mediapipe>=0.10.14,<0.11.0
+lpips>=0.1.4
+facenet-pytorch>=2.5.3
+
+# Quality Assurance & Testing
+pytest>=7.3.0
