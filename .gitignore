@@ -1,5 +1,6 @@
 # Generated pipeline outputs
 data/output/
+data/eval/
 age_input/
 age_input.zip
 age_input_preview.png
