@@ -187,6 +187,16 @@ variations:
       4: { db: -6.0, da: -1.4 }
       5: { db: -8.0, da: -1.8 }
 
+  # --- Facial Aging (FRAN ONNX) ---
+  facial_aging:
+    description: "FRAN U-Net facial aging with sliding-window mask blending"
+    levels:
+      1: { age_progression: 10 }
+      2: { age_progression: 20 }
+      3: { age_progression: 30 }
+      4: { age_progression: 40 }
+      5: { age_progression: 50 }
+
   # --- Test dummy variations (retained for pipeline self-testing) ---
   identity_test:
     description: "Returns the original image unchanged at all levels (test-only verification)"

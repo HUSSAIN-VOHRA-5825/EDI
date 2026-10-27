@@ -170,10 +170,15 @@ class DirectionalLightVariation(Variation):
         params = self.get_level_params(severity)
         shadow_strength = float(params.get("shadow_strength", 0.5))
 
-        h, w = image.shape[:2]
-        # Random direction (angle) for the shadow axis — deterministic via seeded rng
-        angle = rng.uniform(0.0, 2.0 * np.pi)
+        # Random direction (angle) for the shadow axis derived from base seed + image + step
+        from src.utils.seeding import get_direction_rng
+        dir_rng = get_direction_rng(image, "light_directional", rng=rng, config_seed=self.config.get("seed"), instance=self)
+        angle = float(dir_rng.uniform(0.0, 2.0 * np.pi))
+        self.last_angle = angle
+        self.last_angle_deg = float(np.degrees(angle))
         dx, dy = np.cos(angle), np.sin(angle)
+
+        h, w = image.shape[:2]
 
         # Pixel coordinate grid relative to image centre (range roughly -0.5..+0.5)
         ys = (np.arange(h) - h / 2.0) / max(h, w)
@@ -246,9 +251,12 @@ class ColourTemperatureVariation(Variation):
 
         params = self.get_level_params(severity)
         shift = float(params.get("shift", 0.2))
-
-        # Randomly choose warm (+1) or cool (-1) direction
-        direction = 1 if rng.random() > 0.5 else -1
+        # Randomly choose warm (+1) or cool (-1) direction derived from base seed + image + step
+        from src.utils.seeding import get_direction_rng
+        dir_rng = get_direction_rng(image, "light_colortemp", rng=rng, config_seed=self.config.get("seed"), instance=self)
+        direction = 1 if dir_rng.random() > 0.5 else -1
+        self.last_direction = direction
+        self.last_direction_str = "warm (+1)" if direction > 0 else "cool (-1)"
 
         # Channel gain vector in linear space
         # R = +shift (warm) or -shift (cool); B is opposite; G compensates by shift/3

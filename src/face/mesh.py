@@ -508,19 +508,53 @@ class FaceMeshDetector:
         forehead_skin = cv2.bitwise_and(forehead_skin, ext_polygon)
         forehead_skin[hair_dilated > 0] = 0  # Remove pixels covered by (dilated) hair
 
-        # Also subtract eyebrow region from forehead to avoid brow colour leak
-        def _carve_brow(indices: List[int], dilation_px: int, target: np.ndarray) -> None:
-            brow_pts = landmarks[indices].astype(np.int32)
-            hull = cv2.convexHull(brow_pts)
-            brow_ex = np.zeros((h, w), dtype=np.uint8)
-            cv2.fillConvexPoly(brow_ex, hull, 255)
-            if dilation_px > 0:
-                k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (dilation_px * 2 + 1, dilation_px * 2 + 1))
-                brow_ex = cv2.dilate(brow_ex, k)
-            target[brow_ex > 0] = 0
+        # ---- Eyebrow hair extraction (3a): exclude only the brow hairs (dark, high-texture
+        #      pixels inside brow region, dilated slightly), NOT the surrounding skin.
+        #      The skin around the brows receives the full shift, eliminating the halo.
+        gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        lap = np.abs(cv2.Laplacian(gray, cv2.CV_32F))
 
-        _carve_brow(self.left_eyebrow_indices, dilation_px=4, target=forehead_skin)
-        _carve_brow(self.right_eyebrow_indices, dilation_px=4, target=forehead_skin)
+        sample_indices = [50, 280, 205, 425, 4]
+        skin_samples = []
+        for s_idx in sample_indices:
+            if s_idx < len(landmarks):
+                px, py = int(round(landmarks[s_idx][0])), int(round(landmarks[s_idx][1]))
+                if 0 <= py < h and 0 <= px < w:
+                    skin_samples.append(float(gray[py, px]))
+        med_skin_lum = float(np.median(skin_samples)) if skin_samples else 150.0
+
+        brow_hair_mask = np.zeros((h, w), dtype=np.uint8)
+        for brow_indices in [self.left_eyebrow_indices, self.right_eyebrow_indices]:
+            brow_pts = landmarks[brow_indices].astype(np.int32)
+            brow_hull = cv2.convexHull(brow_pts)
+            brow_hull_mask = np.zeros((h, w), dtype=np.uint8)
+            cv2.fillConvexPoly(brow_hull_mask, brow_hull, 255)
+            # Dilate search area slightly (~0.8% face_w, ~2-3px) to enclose hair tips
+            search_k = max(1, int(round(0.008 * face_w)))
+            search_region = cv2.dilate(
+                brow_hull_mask,
+                cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (search_k * 2 + 1, search_k * 2 + 1)),
+            )
+            in_search = search_region > 0
+
+            # Hair criteria: dark pixels OR high-texture hair edges OR segmenter hair
+            dark_hair = gray < (med_skin_lum - 18.0)
+            textured_hair = (lap > 15.0) & (gray < (med_skin_lum - 5.0))
+            is_hair = (dark_hair | textured_hair) & in_search
+            if hair_dilated is not None:
+                is_hair |= (hair_dilated > 0) & in_search
+
+            hair_bin = is_hair.astype(np.uint8) * 255
+            # Dilate slightly (~0.5% face width, ~1-2px)
+            dil_k = max(1, int(round(0.005 * face_w)))
+            hair_dil = cv2.dilate(
+                hair_bin,
+                cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (dil_k * 2 + 1, dil_k * 2 + 1)),
+            )
+            brow_hair_mask = cv2.bitwise_or(brow_hair_mask, hair_dil)
+
+        # Subtract brow hair from forehead
+        forehead_skin[brow_hair_mask > 0] = 0
 
         # Keep only the largest connected component in the forehead region to avoid isolated patches
         num_labels, lbl_map, stats, _ = cv2.connectedComponentsWithStats(forehead_skin)
@@ -534,16 +568,50 @@ class FaceMeshDetector:
         close_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (close_k * 2 + 1, close_k * 2 + 1))
         forehead_skin = cv2.morphologyEx(forehead_skin, cv2.MORPH_CLOSE, close_kernel)
 
-        # ---- 5. Neck box (0e): 0.6 face-heights below chin, 1.1 face-widths wide ----
+        # ---- 5. Neck region (3b): widen smoothly downward from jaw width, feather edges ----
         neck_mask = np.zeros((h, w), dtype=np.uint8)
         if np.any(body_skin):
-            neck_x1 = max(0, int(cx - 0.55 * face_w))
-            neck_x2 = min(w, int(cx + 0.55 * face_w))
-            neck_y1 = max(0, int(chin_y - 0.05 * face_h))
-            neck_y2 = min(h, int(chin_y + 0.60 * face_h))
-            neck_box = np.zeros((h, w), dtype=np.uint8)
-            neck_box[neck_y1:neck_y2, neck_x1:neck_x2] = 255
-            neck_mask = cv2.bitwise_and(body_skin, neck_box)
+            # Determine lower-face / jaw boundary from face oval landmarks
+            oval_pts = landmarks[self.oval_loops[0]]
+            lower_jaw = oval_pts[oval_pts[:, 1] >= (chin_y - 0.25 * face_h)]
+            if len(lower_jaw) > 0:
+                jaw_x_min = float(np.min(lower_jaw[:, 0]))
+                jaw_x_max = float(np.max(lower_jaw[:, 0]))
+            else:
+                jaw_x_min = cx - 0.45 * face_w
+                jaw_x_max = cx + 0.45 * face_w
+            jaw_w = max(jaw_x_max - jaw_x_min, 0.70 * face_w)
+
+            # Meeting point with the jaw (slightly above chin to ensure gap-free overlap)
+            y_meet = max(0, int(chin_y - 0.08 * face_h))
+            y_bot = min(h, int(chin_y + 0.65 * face_h))
+
+            # Top width: at least as wide as the jaw where they meet (with slight outward margin)
+            neck_top_x1 = max(0, int(min(jaw_x_min, cx - 0.5 * jaw_w) - 0.05 * face_w))
+            neck_top_x2 = min(w, int(max(jaw_x_max, cx + 0.5 * jaw_w) + 0.05 * face_w))
+
+            # Bottom width: widens smoothly downward (flaring outward ~20% of face_w on each side)
+            neck_bot_x1 = max(0, int(neck_top_x1 - 0.20 * face_w))
+            neck_bot_x2 = min(w, int(neck_top_x2 + 0.20 * face_w))
+
+            # Construct smooth trapezoidal neck polygon
+            poly = np.array(
+                [[neck_top_x1, y_meet], [neck_top_x2, y_meet],
+                 [neck_bot_x2, y_bot], [neck_bot_x1, y_bot]],
+                dtype=np.int32,
+            )
+            neck_poly_mask = np.zeros((h, w), dtype=np.uint8)
+            cv2.fillPoly(neck_poly_mask, [poly], 255)
+
+            # Restrict body skin to the flared trapezoid
+            neck_candidate = cv2.bitwise_and(body_skin, neck_poly_mask)
+
+            # Morphologically close to eliminate small notches or gaps
+            neck_close_k = max(1, int(round(0.02 * face_w)))
+            neck_kernel = cv2.getStructuringElement(
+                cv2.MORPH_ELLIPSE, (neck_close_k * 2 + 1, neck_close_k * 2 + 1)
+            )
+            neck_mask = cv2.morphologyEx(neck_candidate, cv2.MORPH_CLOSE, neck_kernel)
 
         # ---- 6. Combine: metric face mask ∪ forehead ∪ neck ----
         edit_mask = cv2.bitwise_or(face_mask, forehead_skin)
@@ -551,7 +619,7 @@ class FaceMeshDetector:
         # Remove any remaining hair pixels
         edit_mask[hair_dilated > 0] = 0
 
-        # ---- 7. Carve facial features (0d tight eyes, eyebrows, lips separate) ----
+        # ---- 7. Carve facial features (0d tight eyes, 3a brow hairs, lips separate) ----
         def carve_edit_feature(indices: List[int], dilation_px: int = 0) -> None:
             feature_pts = landmarks[indices].astype(np.int32)
             hull = cv2.convexHull(feature_pts)
@@ -568,9 +636,8 @@ class FaceMeshDetector:
         carve_edit_feature(self.left_eye_indices, dilation_px=0)
         carve_edit_feature(self.right_eye_indices, dilation_px=0)
 
-        # Eyebrows kept excluded (consistent with metric mask)
-        carve_edit_feature(self.left_eyebrow_indices, dilation_px=4)
-        carve_edit_feature(self.right_eyebrow_indices, dilation_px=4)
+        # 3a: Exclude only brow hairs; skin around the brows receives the full shift
+        edit_mask[brow_hair_mask > 0] = 0
 
         # 0c: Extract lip region and carve from edit_mask (skin_tone.py blends at 50 %)
         lip_pts = landmarks[self.lips_indices].astype(np.int32)

@@ -42,9 +42,12 @@ class MotionBlurVariation(Variation):
         h, w = image.shape[:2]
         length_px = max(1.0, length_fraction * w)
 
-        # Draw a deterministic random orientation angle between 0 and 180 degrees
-        angle_deg = float(rng.uniform(0.0, 180.0))
+        # Draw deterministic random orientation angle derived from base seed + image + step
+        from src.utils.seeding import get_direction_rng
+        dir_rng = get_direction_rng(image, "blur_motion", rng=rng, config_seed=self.config.get("seed"), instance=self)
+        angle_deg = float(dir_rng.uniform(0.0, 180.0))
         angle_rad = np.radians(angle_deg)
+        self.last_angle_deg = angle_deg
 
         # Final kernel is odd-sized and large enough to contain the motion arc
         ksize = max(3, int(np.ceil(length_px)) | 1)

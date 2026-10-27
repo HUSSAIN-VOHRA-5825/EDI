@@ -1,15 +1,34 @@
-# Generated evaluation reports
-results/
-!results/robustness_summary.md
+# Generated pipeline outputs
+data/output/
+age_input/
+age_input.zip
+age_input_preview.png
+age_output/
+age_output.zip
 
-# Python bytecode
+# Evaluation outputs and backups
+results/
+results_quick/
+results_full_v1/
+
+# Generated visual grids
+examples/
+
+# Model checkpoints (downloaded/exported locally)
+models/
+
+# Agent and IDE metadata
+.agents/
+.vscode/
+.idea/
+
+# Python bytecode & cache
 __pycache__/
 *.pyc
 *.pyo
-
-# Test cache
 .pytest_cache/
 
 # OS / editor noise
 .DS_Store
 Thumbs.db
+*.log

@@ -1,0 +1,75 @@
+# Controlled Face Image Variation Tool - Chained Variations Configuration
+#
+# A chain combines multiple image degradations applied in realistic canonical sequence:
+# 1. skin tone -> 2. lighting -> 3. blur -> 4. noise -> 5. jpeg
+#
+# Each step defines:
+#   variation: name of registered variation
+#   offset: integer severity adjustment relative to chain severity (clipped to 1..5)
+#   skip_below: severity threshold below which this step is skipped (keeps level 1 mild)
+
+chains:
+  dim_clinic_phone:
+    description: "Poor indoor ambient lighting with sensor read noise and mobile phone JPEG compression."
+    steps:
+      - variation: light_lowlight
+        offset: 0
+        skip_below: 1
+      - variation: noise_sensor
+        offset: 0
+        skip_below: 1
+      - variation: jpeg_lowres
+        offset: -1
+        skip_below: 2
+
+  shaky_handheld:
+    description: "Camera motion blur combined with low-light sensor noise and standard JPEG compression."
+    steps:
+      - variation: blur_motion
+        offset: 0
+        skip_below: 1
+      - variation: noise_sensor
+        offset: -1
+        skip_below: 2
+      - variation: jpeg_quality
+        offset: -1
+        skip_below: 2
+
+  harsh_exam_lamp:
+    description: "Directional examination light casting shadows and highlight blowout with compression."
+    steps:
+      - variation: light_directional
+        offset: 0
+        skip_below: 1
+      - variation: light_overexposed
+        offset: -1
+        skip_below: 2
+      - variation: jpeg_lowres
+        offset: -2
+        skip_below: 3
+
+  remote_upload:
+    description: "Warm/cool color cast, lens defocus, and platform upload resolution downsampling."
+    steps:
+      - variation: light_colortemp
+        offset: 0
+        skip_below: 1
+      - variation: blur_defocus
+        offset: -2
+        skip_below: 3
+      - variation: jpeg_lowres
+        offset: -2
+        skip_below: 3
+
+  skin_and_light:
+    description: "Skin tone darkening in clinical low-light with CMOS sensor noise."
+    steps:
+      - variation: skin_darker
+        offset: 0
+        skip_below: 1
+      - variation: light_lowlight
+        offset: -1
+        skip_below: 2
+      - variation: noise_sensor
+        offset: -1
+        skip_below: 2

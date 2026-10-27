@@ -8,6 +8,8 @@ import yaml
 def load_config(config_path: Union[str, Path] = "configs/default.yaml") -> Dict[str, Any]:
     """Load configuration dictionary from a YAML file.
 
+    If loading default.yaml, also automatically detects and merges configs/chains.yaml.
+
     Args:
         config_path: Path to YAML configuration file.
 
@@ -42,6 +44,24 @@ def load_config(config_path: Union[str, Path] = "configs/default.yaml") -> Dict[
     preprocessing.setdefault("interpolation", "lanczos")
 
     config.setdefault("preservation_thresholds", {})
-    config.setdefault("variations", {})
+    variations = config.setdefault("variations", {})
+
+    # Automatically load and merge chains.yaml if present in the same directory
+    chains_path = path.parent / "chains.yaml"
+    if chains_path.is_file():
+        try:
+            with open(chains_path, "r", encoding="utf-8") as cf:
+                chains_cfg = yaml.safe_load(cf)
+            if isinstance(chains_cfg, dict):
+                chains_dict = chains_cfg.get("chains", chains_cfg)
+                config["chains"] = chains_dict
+                for c_name, c_val in chains_dict.items():
+                    full_key = c_name if c_name.startswith("chain_") else f"chain_{c_name}"
+                    variations.setdefault(full_key, c_val)
+        except Exception:
+            pass
+
+    # Ensure random chain is also registered under variations
+    variations.setdefault("chain_random", {"name": "chain_random"})
 
     return config

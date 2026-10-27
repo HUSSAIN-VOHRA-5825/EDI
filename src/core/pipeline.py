@@ -177,6 +177,8 @@ class PipelineRunner:
                         out_path_str = str(out_abs_path).replace("\\", "/")
 
                     row_notes = list(base_notes)
+                    if hasattr(variation_obj, "last_notes") and variation_obj.last_notes:
+                        row_notes.append(variation_obj.last_notes)
                     if hasattr(variation_obj, "last_out_of_gamut_fraction") and variation_obj.last_out_of_gamut_fraction is not None:
                         oog = variation_obj.last_out_of_gamut_fraction
                         if oog > 0.0:

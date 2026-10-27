@@ -70,3 +70,22 @@ pytest tests/ -v
 ## Adding Images
 
 Place `.png`, `.jpg`, or `.jpeg` face images in `data/input/`. The pipeline resizes to 512 px (longer side, Lanczos) and processes every image found.
+
+---
+
+## Chaining
+
+Chained variations combine multiple degradations in realistic physical sequence (`skin tone -> lighting -> blur -> noise -> jpeg`), defined in `configs/chains.yaml`. Presets (`chain_dim_clinic_phone`, `chain_shaky_handheld`, `chain_harsh_exam_lamp`, `chain_remote_upload`, `chain_skin_and_light`) and stochastic `chain_random` execute at overall severity 1–5 using per-step level offsets and `skip_below` thresholds. Run via `python scripts/run_pipeline.py --variations chain_dim_clinic_phone`.
+
+---
+
+## Run the Demo
+
+Launch the interactive Streamlit application:
+
+```bash
+streamlit run app/app.py
+```
+
+The web interface provides interactive single-variation analysis with anatomical mask overlays and clinical metrics, side-by-side comparison strips across all severities (levels 1–5), in-memory batch processing with ZIP export, and interactive exploration of model robustness evaluation reports and curves.
+

@@ -23,8 +23,19 @@ from src.variations.skin_tone import (
     SkinWarmVariation,
     SkinCoolVariation,
 )
+from src.variations.chain import (
+    ChainVariation,
+    DimClinicPhoneVariation,
+    ShakyHandheldVariation,
+    HarshExamLampVariation,
+    RemoteUploadVariation,
+    SkinAndLightVariation,
+    RandomChainVariation,
+)
+from src.variations.aging import AgingVariation
 
 __all__ = [
+    "AgingVariation",
     "IdentityTestVariation",
     "BrightnessTestVariation",
     "GaussianBlurVariation",
@@ -42,4 +53,11 @@ __all__ = [
     "SkinDarkerVariation",
     "SkinWarmVariation",
     "SkinCoolVariation",
+    "ChainVariation",
+    "DimClinicPhoneVariation",
+    "ShakyHandheldVariation",
+    "HarshExamLampVariation",
+    "RemoteUploadVariation",
+    "SkinAndLightVariation",
+    "RandomChainVariation",
 ]

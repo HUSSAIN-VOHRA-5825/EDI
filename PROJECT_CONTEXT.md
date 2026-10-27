@@ -1,62 +1,41 @@
 # Project: Controlled Face Image Variation Tool for Stress-Testing Medical AI
 
 ## Problem Statement
-Medical AI systems must be robust to imaging conditions: lighting, blur, noise, JPEG compression, skin tone shifts, pose, and age. Collecting real images for every condition is impractical. This tool generates realistic, controlled variations of real face images across severity levels 1–5, checks that clinical identity is preserved, and stress-tests AI components via robustness curves (accuracy vs severity).
+Medical AI must be robust to imaging degradation (lighting, blur, noise, compression, skin tone shifts). Collecting real patient images for all conditions is impractical. This tool generates realistic, controlled variations of facial images across severity levels 1–5, evaluates clinical identity and skin-texture preservation, and benchmarks AI robustness without data collection.
 
 ## Tech Stack
-- Python 3.10+, OpenCV, NumPy, Pillow
-- MediaPipe (Face Mesh landmarks + multiclass selfie segmenter)
-- scikit-image (SSIM), PyTorch + lpips (perceptual similarity)
-- facenet-pytorch (face embeddings / identity similarity)
-- PyYAML (config), pandas (CSV), matplotlib (grids)
-- pytest (tests); Streamlit (UI — future)
+- Python 3.10+, OpenCV, NumPy, Pillow, PyYAML, pandas, matplotlib, pytest
+- MediaPipe (Face Mesh landmarks + multiclass selfie segmentation)
+- PyTorch, torchvision, facenet-pytorch (InceptionResnetV1), lpips (AlexNet), scikit-image
 
 ## Folder Layout
-```
-configs/default.yaml        # All parameters, thresholds, variation levels
-data/input/                 # Reference face images (committed)
-data/output/                # Generated images + metadata.csv (committed)
-data/eval/                  # FairFace evaluation subset (committed)
-examples/                   # One grid PNG per variation + metadata.csv (committed)
-models/                     # .tflite weight (committed; auto-fetched if missing)
-src/core/                   # Base class, registry, config loader, pipeline runner
-src/face/mesh.py            # Landmark detection, skin mask, edit mask
-src/metrics/                # identity, ssim, lpips, detail_retention, ita, delta_e, preservation
-src/variations/             # One file per variation family
-src/utils/                  # IO, seeding, grid visualization
-scripts/                    # CLI entry points (run_pipeline, make_grid, visualize_mask, make_eval_subset)
-tests/                      # pytest suite
-```
+- `configs/`: `default.yaml` (parameters, thresholds) and `chains.yaml` (chain definitions)
+- `data/`: `input/` (reference image), `output/` (generated outputs), `eval/` (FairFace subset)
+- `examples/`: Reference grids (levels 1–5) per variation/chain and `skin_edit_mask.png`
+- `models/`: Auto-downloaded MediaPipe multiclass segmenter weights (`.tflite`)
+- `src/`: `core/` (registry, pipeline), `face/` (mesh, skin masks), `metrics/`, `variations/`, `evaluation/`, `utils/`
+- `scripts/`: CLI tools (`run_pipeline.py`, `run_robustness.py`, `make_grid.py`, `visualize_mask.py`, `plot_robustness.py`)
+- `results/`: Robustness curves, heatmaps, summary reports, and examples
 
-## Implemented Variations (11 real + 2 test dummies)
-- **blur_gaussian** — Gaussian blur; sigma as fraction of image width
-- **blur_motion** — Anti-aliased 4× supersampled line kernel; random angle; length as fraction of width
-- **blur_defocus** — Circular disk (bokeh) kernel; radius as fraction of width
-- **noise_gaussian** — Additive zero-mean Gaussian noise
-- **noise_sensor** — Realistic CMOS sensor noise (Poisson shot + Gaussian read, in linear space)
-- **jpeg_quality** — Lossy JPEG DCT quantization
-- **jpeg_lowres** — Downscale + JPEG + bilinear upscale (low-res upload simulation)
-- **light_lowlight** — Linear-space gain < 1; darkens with gamma correction
-- **light_overexposed** — Linear-space gain > 1 with tanh shoulder rolloff
-- **light_directional** — Smoothstep shadow gradient across the face
-- **light_colortemp** — White-balance shift in linear sRGB (warm/cool)
-- **skin_lighter / skin_darker** — Additive CIELAB L* shift with chroma compensation; feathered edit mask
-- **skin_warm / skin_cool** — Additive CIELAB a*/b* shift; tuned to avoid purple (cool) and harsh cast (warm)
+## Variations & Chains
+- Blur: `blur_gaussian` (radius), `blur_motion` (linear smear), `blur_defocus` (aperture disk)
+- Noise: `noise_gaussian` (additive electronic), `noise_sensor` (Poisson shot + Gaussian read)
+- Compression: `jpeg_quality` (DCT quantization), `jpeg_lowres` (downsample + upscale)
+- Lighting: `light_lowlight` (linear underexposure), `light_overexposed` (tanh roll-off), `light_directional` (shadow gradient), `light_colortemp` (warm/cool shift)
+- Skin Tone: `skin_lighter`, `skin_darker`, `skin_warm`, `skin_cool` (CIE-LAB shifts on forehead/cheeks/nose)
+- Chains: `chain_dim_clinic_phone`, `chain_shaky_handheld`, `chain_harsh_exam_lamp`, `chain_remote_upload`, `chain_skin_and_light`, `chain_random` (canonical order: skin -> light -> blur -> noise -> jpeg)
 
-## Metrics and Gate Logic
-Metrics computed per generated image (inside face mask unless noted): `identity_similarity` (FaceNet cosine), `ssim_face`, `ssim_full`, `lpips_face`, `detail_retention` (Laplacian variance ratio, clipped 0–2), `face_clipped_fraction`, `delta_e_face`, `ita_before/after`.  
-Thresholds in `preservation_thresholds` in `default.yaml`. Gate passes when all active metrics meet thresholds. Skin-tone variations gate only on `identity`, `detail_retention`, and `clipped_fraction`.  
-Level 1–2 pass for all variations; level 5 fails for `blur_motion`, `jpeg_lowres`, `noise_sensor`, `light_overexposed`.
+## Metrics & Gate Logic
+- Metrics: Identity similarity (FaceNet cosine), SSIM (face/full), LPIPS, detail retention (Laplacian ratio), clipping fraction, delta-E, ITA.
+- Gate thresholds: Identity >= 0.60, SSIM face >= 0.75, SSIM full >= 0.55, LPIPS face <= 0.08, detail >= 0.075.
+- Evaluated against original image once per variation; failures are flagged in metadata notes but images are kept.
+- Detail retention uses Laplacian variance ratio; ITA evaluates individual skin melanin tone.
 
 ## Coding Rules
-- All parameters in YAML — no magic numbers in code.
-- All randomness seeded from config (`seed: 42`).
-- Effects applied to the whole image; the face mask is used only for metrics.
-- Parameters resolution-invariant (fraction of image size, not fixed pixels).
-- Never silently fail — log warnings for missing faces, failed models, etc.
-- Clear docstrings and type hints; beginner-friendly comments explaining WHY.
+- Deterministic execution via seeded NumPy `Generator`; never mutate inputs in-place.
+- Strict canonical execution sequence in chains: `skin_tone -> lighting -> blur -> noise -> jpeg`.
+- Preservation checks operate on facial metric mask; variations never touch metric mask logic.
 
-## Status
-**Done:** all 11 real variations + 2 test dummies, full preservation gate, face skin mask (MediaPipe multiclass segmenter + YCrCb fallback), FairFace 147-image evaluation subset.  
-**Next:** robustness evaluation runner (`scripts/run_robustness.py`) — models under test (MediaPipe detection, FaceNet identity, ResNet18 classifier with 5-fold CV), robustness curves, per-race breakdown, `results/robustness_summary.md`.  
-**After that:** pose/viewpoint variation, age simulation, Streamlit UI.
+## Status & Known Limitations
+- Status: 15 atomic variations, 6 chains, and Streamlit demo app completed; quick robustness evaluation implemented. Next: full evaluation, age variation.
+- Known limitations: detail_retention is inflated by noise; ITA is only meaningful for skin tone variations.
