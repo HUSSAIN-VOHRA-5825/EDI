@@ -14,8 +14,17 @@ results_full_v1/
 # Generated visual grids
 examples/
 
-# Model checkpoints (downloaded/exported locally)
-models/
+# Large binary model checkpoints (>100MB, downloaded/exported locally)
+models/*.onnx
+models/*.pth
+models/*.tflite
+models/reaging/*.onnx
+models/reaging/*.pth
+
+# Keep essential model directory assets
+!models/reaging/mask512.jpg
+!models/reaging/mask1024.jpg
+!models/reaging/README.md
 
 # Agent and IDE metadata
 .agents/

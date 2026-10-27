@@ -89,3 +89,17 @@ streamlit run app/app.py
 
 The web interface provides interactive single-variation analysis with anatomical mask overlays and clinical metrics, side-by-side comparison strips across all severities (levels 1–5), in-memory batch processing with ZIP export, and interactive exploration of model robustness evaluation reports and curves.
 
+---
+
+## Facial Aging & Model Setup
+
+The facial aging feature uses a lightweight FRAN (Face Re-Aging Network) U-Net running in ONNX Runtime on CPU.
+The blend masks (`models/reaging/mask512.jpg`, `models/reaging/mask1024.jpg`) are tracked in the repository.
+
+To download the pretrained weights and export `models/reaging/unet.onnx` locally:
+
+```bash
+python scripts/download_reaging_model.py
+```
+
+*(The model is also downloaded and cached automatically the first time facial aging is selected in the Streamlit app.)*

@@ -23,7 +23,14 @@ class OnnxUNet:
 
     def __init__(self, onnx_path: Path):
         if not onnx_path.exists():
-            raise FileNotFoundError(f"ONNX model file not found at {onnx_path}")
+            try:
+                from scripts.download_reaging_model import ensure_reaging_assets
+                ensure_reaging_assets()
+            except Exception as e:
+                raise FileNotFoundError(
+                    f"ONNX model file not found at {onnx_path}. "
+                    f"Run 'python scripts/download_reaging_model.py' to download. (Error: {e})"
+                )
         self.session = ort.InferenceSession(str(onnx_path), providers=["CPUExecutionProvider"])
         self.input_name = self.session.get_inputs()[0].name
         self.output_name = self.session.get_outputs()[0].name
